@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: onix-adapter
-  namespace: onix-adapter
+  name: onix-adapter            # Deployment Name
+  namespace: onix-adapter       # Namespace
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: onix-adapter
+      app: onix-adapter         # Application Name
   template:
     metadata:
       labels:
@@ -15,10 +15,10 @@ spec:
       annotations:
         gke-gcsfuse/volumes: "true"
     spec:
-      serviceAccountName: "onix-adapter-sa"
+      serviceAccountName: "onix-adapter-sa"    # GKE or Namespace Service Account
       containers:
         - name: onix-adapter
-          image: "asia-south1-docker.pkg.dev/trusty-relic-370809/onix-adapter/onix-adapter:v1.1"
+          image: "asia-south1-docker.pkg.dev/trusty-relic-370809/onix-adapter/onix-adapter:v1.1"    # Docker image link
           ports:
             - containerPort: 8080
           #command:
@@ -41,7 +41,7 @@ spec:
             driver: gcsfuse.csi.storage.gke.io
             readOnly: false
             volumeAttributes:
-              bucketName: "onix-adapter-bucket"
+              bucketName: "onix-adapter-bucket"                # Bucket Name
               mountOptions: "implicit-dirs"      
         - name: config-volume
           configMap:
