@@ -2,12 +2,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: onix-adapter-service
-  namespace: onix-adapter
+  namespace: onix-adapter         # Namespace
 spec:
   selector:
-    app: onix-adapter
+    app: onix-adapter             # This should match the app name in deployment.yaml
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: LoadBalancer
+  type: LoadBalancer              # Type of exposure
