@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onix-config
+  namespace: onix-adapter
+data:
+data:
+  config.yaml: |
+    appName: "onix"
+    log:
+      level: debug
+      destinations:
+        - type: stdout
+      context_keys:
+        - transaction_id
+        - message_id
+    http:
+      port: 8080
+      timeout:
+        read: 30
+        write: 30
+        idle: 30
+    pluginManager:
+      root: /app/plugins
+      remoteRoot: /mnt/gcs/plugins/plugins_bundle.zip
+    modules:
+      - name: bapTxnReciever
+        path: /bap/reciever
+        handler:
+          type: std
+          plugins:
+            schemaValidator:
+              id: nopschemavalidator
+            signValidator:
+              id: nopsignvalidator
+            publisher:
+              id: publisher
+              config:
+                project: trusty-relic-370809
+                topic: bapNetworkReciever
+            router:
+              id: router
+              config:
+                routingConfigPath: /mnt/gcs/configs/bapTxnReciever-routing.yaml
+          steps:
+            - validateSign
+            - addRoute
+            - validateSchema
+      - name: bapTxnCaller
+        path: /bap/caller
+        handler:
+          type: std
+          plugins:
+            schemaValidator:
+              id: nopschemavalidator
+            signer:
+              id: nopsigner
+            publisher:
+              id: publisher
+              config:
+                project: trusty-relic-370809
+                topic: bapNetworkReciever
+            router:
+              id: router
+              config:
+                routingConfigPath: /mnt/gcs/configs/bapTxnCaller-routing.yaml
+            middleware:
+              - id: reqpreprocessor
+          steps:
+            - validateSchema
+            - addRoute
+            - sign
+      - name: bppTxnReciever
+        path: /bpp/reciever
+        handler:
+          type: std
+          plugins:
+            schemaValidator:
+              id: nopschemavalidator
+            signValidator:
+              id: nopsignvalidator
+            publisher:
+              id: publisher
+              config:
+                project: trusty-relic-370809
+                topic: bapNetworkReciever
+            router:
+              id: router
+              config:
+                routingConfigPath: /mnt/gcs/configs/bppTxnReciever-routing.yaml
+          steps:
+            - validateSign
+            - addRoute
+            - validateSchema
+      - name: bppTxnCaller
+        path: /bpp/caller
+        handler:
+          type: std
+          plugins:
+            schemaValidator:
+              id: nopschemavalidator
+            signer:
+              id: nopsigner
+            publisher:
+              id: publisher
+              config:
+                project: trusty-relic-370809
+                topic: bapNetworkReciever
+            router:
+              id: router
+              config:
+                routingConfigPath: /mnt/gcs/configs/bppTxnCaller-routing.yaml
+            middleware:
+              - id: reqpreprocessor
+          steps:
+            - validateSchema
+            - addRoute
+            - sign

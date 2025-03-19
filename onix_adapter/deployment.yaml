@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onix-adapter
+  namespace: onix-adapter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: onix-adapter
+  template:
+    metadata:
+      labels:
+        app: onix-adapter
+      annotations:
+        gke-gcsfuse/volumes: "true"
+    spec:
+      serviceAccountName: "onix-adapter-sa"
+      containers:
+        - name: onix-adapter
+          image: "asia-south1-docker.pkg.dev/trusty-relic-370809/onix-adapter/onix-adapter:v1.1"
+          ports:
+            - containerPort: 8080
+          #command:
+          #  - sleep
+          #  - "3600"
+          env:
+            - name: CONFIG_FILE
+              value: "/config/config.yaml"
+          volumeMounts:
+            - name: gcs-bucket
+              mountPath: /mnt/gcs
+              readOnly: false          
+            - name: config-volume
+              mountPath: /config
+              readOnly: false   
+
+      volumes:
+        - name: gcs-bucket
+          csi:
+            driver: gcsfuse.csi.storage.gke.io
+            readOnly: false
+            volumeAttributes:
+              bucketName: "onix-adapter-bucket"
+              mountOptions: "implicit-dirs"      
+        - name: config-volume
+          configMap:
+            name: onix-config
